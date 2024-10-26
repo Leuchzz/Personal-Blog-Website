@@ -1,0 +1,53 @@
+const sqlite3 = require('sqlite3').verbose();
+
+// Create a new database or open an existing one
+const db = new sqlite3.Database('todo_list.db', (err) => {
+    if (err) {
+        console.error(err.message);
+    }
+    console.log('Connected to the SQLite database.');
+});
+
+// Create a new table
+db.run(`CREATE TABLE IF NOT EXISTS todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task TEXT
+)`, (err) => {
+    if (err) {
+        console.error(err.message);
+    }
+});
+
+// Insert a new todo
+const insertTodo = (task) => {
+    db.run(`INSERT INTO todos (task) VALUES (?)`, [task], function(err) {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log(`A row has been inserted with rowid ${this.lastID}`);
+    });
+};
+
+// Retrieve todos
+const getTodos = () => {
+    db.all(`SELECT * FROM todos`, [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        rows.forEach((row) => {
+            console.log(row);
+        });
+    });
+};
+
+// Example usage
+insertTodo('Buy groceries');
+getTodos();
+
+// Close the database connection when done
+db.close((err) => {
+    if (err) {
+        console.error(err.message);
+    }
+    console.log('Closed the database connection.');
+});
